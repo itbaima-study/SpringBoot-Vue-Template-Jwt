@@ -1,0 +1,78 @@
+package com.example.controller;
+
+import com.example.entity.RestBean;
+import com.example.entity.vo.request.EmailRegisterVO;
+import com.example.entity.vo.request.EmailResetVO;
+import com.example.service.AccountService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.function.Supplier;
+
+/**
+ * 用于验证相关Controller包含用户的注册、重置密码等操作
+ */
+@Validated
+@RestController
+@RequestMapping("/api/auth")
+public class AuthorizeController {
+
+    @Resource
+    AccountService accountService;
+
+    /**
+     * 请求邮件验证码
+     * @param email 邮件
+     * @param request 请求
+     * @return 是否请求成功
+     */
+    @PostMapping("/ask-code")
+    public RestBean<Void> askVerifyCode(@RequestParam @Email String email,
+                                        HttpServletRequest request){
+        return this.messageHandle(() ->
+                accountService.registerEmailVerifyCode(String.valueOf(email), request.getRemoteAddr()));
+    }
+
+    /**
+     * 进行用户注册操作，需要先请求邮件验证码
+     * @param vo 注册信息
+     * @return 是否注册成功
+     */
+    @PostMapping("/register")
+    public RestBean<Void> register(@Valid EmailRegisterVO vo){
+        return this.messageHandle(() ->
+                accountService.registerEmailAccount(vo));
+    }
+
+    /**
+     * 执行密码重置操作
+     * @param vo 密码重置信息
+     * @return 是否操作成功
+     */
+    @PostMapping("/reset-password")
+    public RestBean<Void> reset(@Valid EmailResetVO vo){
+        return this.messageHandle(() ->
+                accountService.resetEmailAccountPassword(vo));
+    }
+
+    /**
+     * 针对于返回值为String作为错误信息的方法进行统一处理
+     * @param action 具体操作
+     * @return 响应结果
+     * @param <T> 响应结果类型
+     */
+    private <T> RestBean<T> messageHandle(Supplier<String> action){
+        String message = action.get();
+        if(message == null)
+            return RestBean.success();
+        else
+            return RestBean.failure(400, message);
+    }
+}

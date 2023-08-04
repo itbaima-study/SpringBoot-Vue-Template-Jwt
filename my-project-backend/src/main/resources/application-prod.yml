@@ -1,0 +1,37 @@
+#生产环境配置
+spring:
+  mail:
+    host: smtp.163.com
+    username: javastudy111@163.com
+    password: VKQFYZMUSUZGSGEG
+  rabbitmq:
+    addresses: localhost
+    username: admin
+    password: admin
+    virtual-host: /
+  datasource:
+    url: jdbc:mysql://localhost:3306/test
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  security:
+    jwt:
+      key: 'abcdefghijklmn'
+      expire: 72
+      limit:
+        base: 10
+        upgrade: 300
+        frequency: 30
+    filter:
+      order: -100
+  web:
+    verify:
+      mail-limit: 60
+    flow:
+      period: 3
+      limit: 10
+      block: 30
+    cors:
+      origin: '*'
+      credentials: false
+      methods: '*'
