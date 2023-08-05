@@ -17,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * 请求日志过滤器，用于记录所有用户请求信息
@@ -28,14 +29,32 @@ public class RequestLogFilter extends OncePerRequestFilter {
     @Resource
     SnowflakeIdGenerator generator;
 
+    private final Set<String> ignores = Set.of("/swagger-ui", "/v3/api-docs");
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        long startTime = System.currentTimeMillis();
-        this.logRequestStart(request);
-        ContentCachingResponseWrapper wrapper = new ContentCachingResponseWrapper(response);
-        filterChain.doFilter(request, wrapper);
-        this.logRequestEnd(wrapper, startTime);
-        wrapper.copyBodyToResponse();
+        if(this.isIgnoreUrl(request.getServletPath())) {
+            filterChain.doFilter(request, response);
+        } else {
+            long startTime = System.currentTimeMillis();
+            this.logRequestStart(request);
+            ContentCachingResponseWrapper wrapper = new ContentCachingResponseWrapper(response);
+            filterChain.doFilter(request, wrapper);
+            this.logRequestEnd(wrapper, startTime);
+            wrapper.copyBodyToResponse();
+        }
+    }
+
+    /**
+     * 判定当前请求url是否不需要日志打印
+     * @param url 路径
+     * @return 是否忽略
+     */
+    private boolean isIgnoreUrl(String url){
+        for (String ignore : ignores) {
+            if(url.startsWith(ignore)) return true;
+        }
+        return false;
     }
 
     /**

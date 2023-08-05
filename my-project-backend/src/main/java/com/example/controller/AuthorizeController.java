@@ -4,15 +4,14 @@ import com.example.entity.RestBean;
 import com.example.entity.vo.request.EmailRegisterVO;
 import com.example.entity.vo.request.EmailResetVO;
 import com.example.service.AccountService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.function.Supplier;
 
@@ -22,6 +21,7 @@ import java.util.function.Supplier;
 @Validated
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "登录校验相关", description = "包括用户登录、注册、验证码请求等操作。")
 public class AuthorizeController {
 
     @Resource
@@ -34,6 +34,7 @@ public class AuthorizeController {
      * @return 是否请求成功
      */
     @PostMapping("/ask-code")
+    @Operation(summary = "请求邮件验证码")
     public RestBean<Void> askVerifyCode(@RequestParam @Email String email,
                                         HttpServletRequest request){
         return this.messageHandle(() ->
@@ -46,7 +47,8 @@ public class AuthorizeController {
      * @return 是否注册成功
      */
     @PostMapping("/register")
-    public RestBean<Void> register(@Valid EmailRegisterVO vo){
+    @Operation(summary = "用户注册操作")
+    public RestBean<Void> register(@RequestBody @Valid EmailRegisterVO vo){
         return this.messageHandle(() ->
                 accountService.registerEmailAccount(vo));
     }
@@ -57,7 +59,8 @@ public class AuthorizeController {
      * @return 是否操作成功
      */
     @PostMapping("/reset-password")
-    public RestBean<Void> reset(@Valid EmailResetVO vo){
+    @Operation(summary = "密码重置操作")
+    public RestBean<Void> reset(@RequestBody @Valid EmailResetVO vo){
         return this.messageHandle(() ->
                 accountService.resetEmailAccountPassword(vo));
     }

@@ -1,4 +1,12 @@
 #生产环境配置
+server:
+  port: 80
+springdoc:
+  api-docs:
+    enabled: false
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 spring:
   mail:
     host: smtp.163.com

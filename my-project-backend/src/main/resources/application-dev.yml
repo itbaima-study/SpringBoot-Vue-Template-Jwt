@@ -1,4 +1,8 @@
 # 开发环境配置
+springdoc:
+  paths-to-match: /api/**
+  swagger-ui:
+    operations-sorter: alpha
 spring:
   mail:
     host: smtp.163.com
@@ -29,12 +33,9 @@ spring:
       mail-limit: 60
     flow:
       period: 3
-      limit: 10
+      limit: 50
       block: 30
     cors:
       origin: '*'
       credentials: false
       methods: '*'
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
