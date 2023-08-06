@@ -63,6 +63,16 @@ public class JwtUtils {
     }
 
     /**
+     * 根据配置快速计算过期时间
+     * @return 过期时间
+     */
+    public Date expireTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR, expire);
+        return calendar.getTime();
+    }
+
+    /**
      * 根据UserDetails生成对应的Jwt令牌
      * @param user 用户信息
      * @return 令牌
@@ -70,9 +80,7 @@ public class JwtUtils {
     public String createJwt(UserDetails user, String username, int userId) {
         if(this.frequencyCheck(userId)) {
             Algorithm algorithm = Algorithm.HMAC256(key);
-            Calendar calendar = Calendar.getInstance();
-            Date now = calendar.getTime();
-            calendar.add(Calendar.HOUR, expire);
+            Date expire = this.expireTime();
             return JWT.create()
                     .withJWTId(UUID.randomUUID().toString())
                     .withClaim("id", userId)
@@ -80,8 +88,8 @@ public class JwtUtils {
                     .withClaim("authorities", user.getAuthorities()
                             .stream()
                             .map(GrantedAuthority::getAuthority).toList())
-                    .withExpiresAt(calendar.getTime())
-                    .withIssuedAt(now)
+                    .withExpiresAt(expire)
+                    .withIssuedAt(new Date())
                     .sign(algorithm);
         } else {
             return null;

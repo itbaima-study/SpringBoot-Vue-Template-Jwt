@@ -30,8 +30,8 @@ public class CorsFilter extends HttpFilter {
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        chain.doFilter(request, response);
         this.addCorsHeader(request, response);
+        chain.doFilter(request, response);
     }
 
     /**
@@ -40,8 +40,9 @@ public class CorsFilter extends HttpFilter {
      * @param response 响应
      */
     private void addCorsHeader(HttpServletRequest request, HttpServletResponse response) {
-        response.addHeader("Access-Control-Allow-Origin", this.resolveMethod());
-        response.addHeader("Access-Control-Allow-Methods", this.resolveOrigin(request));
+        response.addHeader("Access-Control-Allow-Origin", this.resolveOrigin(request));
+        response.addHeader("Access-Control-Allow-Methods", this.resolveMethod());
+        response.addHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
         if(credentials) {
             response.addHeader("Access-Control-Allow-Credentials", "true");
         }
@@ -52,7 +53,7 @@ public class CorsFilter extends HttpFilter {
      * @return 解析得到的请求头值
      */
     private String resolveMethod(){
-        return methods;
+        return methods.equals("*") ? "GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE, PATCH" : methods;
     }
 
     /**
@@ -61,6 +62,6 @@ public class CorsFilter extends HttpFilter {
      * @return 解析得到的请求头值
      */
     private String resolveOrigin(HttpServletRequest request){
-        return origin;
+        return origin.equals("*") ? request.getHeader("Origin") : origin;
     }
 }

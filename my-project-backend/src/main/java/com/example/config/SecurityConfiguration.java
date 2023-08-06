@@ -108,6 +108,7 @@ public class SecurityConfiguration {
                 writer.write(RestBean.forbidden("登录验证频繁，请稍后再试").asJsonString());
             } else {
                 AuthorizeVO vo = account.asViewObject(AuthorizeVO.class, o -> o.setToken(jwt));
+                vo.setExpire(utils.expireTime());
                 writer.write(RestBean.success(vo).asJsonString());
             }
         }

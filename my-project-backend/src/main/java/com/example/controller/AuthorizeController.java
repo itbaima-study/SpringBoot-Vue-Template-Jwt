@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.entity.RestBean;
+import com.example.entity.vo.request.ConfirmResetVO;
 import com.example.entity.vo.request.EmailRegisterVO;
 import com.example.entity.vo.request.EmailResetVO;
 import com.example.service.AccountService;
@@ -9,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,13 +29,13 @@ public class AuthorizeController {
 
     /**
      * 请求邮件验证码
-     * @param email 邮件
+     * @param email 请求邮件
      * @param request 请求
      * @return 是否请求成功
      */
-    @PostMapping("/ask-code")
+    @GetMapping("/ask-code")
     @Operation(summary = "请求邮件验证码")
-    public RestBean<Void> askVerifyCode(@RequestParam @Email String email,
+    public RestBean<Void> askVerifyCode(@RequestParam String email,
                                         HttpServletRequest request){
         return this.messageHandle(() ->
                 accountService.registerEmailVerifyCode(String.valueOf(email), request.getRemoteAddr()));
@@ -54,13 +54,24 @@ public class AuthorizeController {
     }
 
     /**
+     * 执行密码重置确认，检查验证码是否正确
+     * @param vo 密码重置信息
+     * @return 是否操作成功
+     */
+    @PostMapping("/reset-confirm")
+    @Operation(summary = "密码重置确认")
+    public RestBean<Void> resetConfirm(@RequestBody @Valid ConfirmResetVO vo){
+        return this.messageHandle(() -> accountService.resetConfirm(vo));
+    }
+
+    /**
      * 执行密码重置操作
      * @param vo 密码重置信息
      * @return 是否操作成功
      */
     @PostMapping("/reset-password")
     @Operation(summary = "密码重置操作")
-    public RestBean<Void> reset(@RequestBody @Valid EmailResetVO vo){
+    public RestBean<Void> resetPassword(@RequestBody @Valid EmailResetVO vo){
         return this.messageHandle(() ->
                 accountService.resetEmailAccountPassword(vo));
     }
