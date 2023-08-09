@@ -148,7 +148,7 @@ const register = () => {
 
 const validateEmail = () => {
     coldTime.value = 60
-    get(`/api/auth/ask-code?email=${form.email}`, () => {
+    get(`/api/auth/ask-code?email=${form.email}&type=register`, () => {
         ElMessage.success(`验证码已发送到邮箱: ${form.email}，请注意查收`)
         setInterval(() => coldTime.value--, 1000)
     }, undefined, (message) => {

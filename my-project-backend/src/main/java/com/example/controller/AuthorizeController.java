@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,15 +32,17 @@ public class AuthorizeController {
     /**
      * 请求邮件验证码
      * @param email 请求邮件
+     * @param type 类型
      * @param request 请求
      * @return 是否请求成功
      */
     @GetMapping("/ask-code")
     @Operation(summary = "请求邮件验证码")
-    public RestBean<Void> askVerifyCode(@RequestParam String email,
+    public RestBean<Void> askVerifyCode(@RequestParam @Email String email,
+                                        @RequestParam @Pattern(regexp = "(register|reset)")  String type,
                                         HttpServletRequest request){
         return this.messageHandle(() ->
-                accountService.registerEmailVerifyCode(String.valueOf(email), request.getRemoteAddr()));
+                accountService.registerEmailVerifyCode(type, String.valueOf(email), request.getRemoteAddr()));
     }
 
     /**

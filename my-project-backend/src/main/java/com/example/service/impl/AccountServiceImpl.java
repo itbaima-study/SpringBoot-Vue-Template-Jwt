@@ -68,17 +68,18 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     /**
      * 生成注册验证码存入Redis中，并将邮件发送请求提交到消息队列等待发送
+     * @param type 类型
      * @param email 邮件地址
      * @param address 请求IP地址
      * @return 操作结果，null表示正常，否则为错误原因
      */
-    public String registerEmailVerifyCode(String email, String address){
+    public String registerEmailVerifyCode(String type, String email, String address){
         synchronized (address.intern()) {
             if(!this.verifyLimit(address))
                 return "请求频繁，请稍后再试";
             Random random = new Random();
             int code = random.nextInt(899999) + 100000;
-            Map<String, Object> data = Map.of("type","register","email", email, "code", code);
+            Map<String, Object> data = Map.of("type",type,"email", email, "code", code);
             rabbitTemplate.convertAndSend(Const.MQ_MAIL, data);
             stringRedisTemplate.opsForValue()
                     .set(Const.VERIFY_EMAIL_DATA + email, String.valueOf(code), 3, TimeUnit.MINUTES);
