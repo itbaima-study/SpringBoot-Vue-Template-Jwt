@@ -91,8 +91,8 @@ function logout(success, failure = defaultFailure){
     }, failure)
 }
 
-function get(url, success, failure) {
-    internalGet(url, accessHeader(), success, failure = defaultFailure)
+function get(url, success, failure = defaultFailure) {
+    internalGet(url, accessHeader(), success, failure)
 }
 
 function unauthorized() {
