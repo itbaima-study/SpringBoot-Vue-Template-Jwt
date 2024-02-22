@@ -72,8 +72,12 @@ public class FlowUtils {
      * @return 是否通过限流检查
      */
     private boolean internalCheck(String key, int frequency, int period, LimitAction action){
-        if (Boolean.TRUE.equals(template.hasKey(key))) {
-            Long value = Optional.ofNullable(template.opsForValue().increment(key)).orElse(0L);
+        String count = template.opsForValue().get(key);
+        if (count != null) {
+            long value = Optional.ofNullable(template.opsForValue().increment(key)).orElse(0L);
+            int c = Integer.parseInt(count);
+            if(value != c + 1)
+                template.expire(key, period, TimeUnit.SECONDS);
             return action.run(value > frequency);
         } else {
             template.opsForValue().set(key, "1", period, TimeUnit.SECONDS);
