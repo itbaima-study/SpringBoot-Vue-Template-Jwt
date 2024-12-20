@@ -45,7 +45,7 @@ public class FlowLimitingFilter extends HttpFilter {
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String address = request.getRemoteAddr();
-        if (!tryCount(address))
+        if ("OPTIONS".equals(request.getMethod()) && !tryCount(address))
             this.writeBlockMessage(response);
         else
             chain.doFilter(request, response);
@@ -72,9 +72,9 @@ public class FlowLimitingFilter extends HttpFilter {
      * @throws IOException 可能的异常
      */
     private void writeBlockMessage(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setStatus(429);
         response.setContentType("application/json;charset=utf-8");
         PrintWriter writer = response.getWriter();
-        writer.write(RestBean.forbidden("操作频繁，请稍后再试").asJsonString());
+        writer.write(RestBean.failure(429, "请求频率过快，请稍后再试").asJsonString());
     }
 }
